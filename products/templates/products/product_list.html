@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tracked Products</title>
+</head>
+<body>
+    <h1>Tracked Products</h1>
+
+    <a href="/add/">➕ Add Product</a>
+
+    <ul>
+        {% for product in products %}
+            <li>
+                <strong>{{ product.name }}</strong><br>
+                Target Price: {{ product.target_price }}<br>
+                Last Price: {{ product.last_price|default:"Not checked yet" }}
+            </li>
+            <hr>
+        {% empty %}
+            <li>No products added yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
