@@ -1,18 +1,397 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Add Product</title>
-</head>
-<body>
-    <h1>Add Product</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <br>
-    <a href="/">⬅ Back to product list</a>
-</body>
+    <title>Add Product | Price Tracker</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #080b16;
+        color: #f8fafc;
+        min-height: 100vh;
+      }
+      
+      /* =========================
+                 NAVBAR
+              ========================= */
+      
+      .navbar {
+        height: 72px;
+      
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      
+        padding: 0 7%;
+      
+        border-bottom: 1px solid #1e293b;
+      
+        background: rgba(8, 11, 22, 0.95);
+      }
+      
+      .logo {
+        font-size: 22px;
+        font-weight: 800;
+      }
+      
+      .logo span {
+        color: #8b5cf6;
+      }
+      
+      .back-link {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+      
+        transition: 0.3s;
+      }
+      
+      .back-link:hover {
+        color: #ffffff;
+      }
+      
+      /* =========================
+                 MAIN
+              ========================= */
+      
+      .container {
+        width: 90%;
+        max-width: 900px;
+      
+        margin: auto;
+      }
+      
+      /* =========================
+                 HEADER
+              ========================= */
+      
+      .header {
+        text-align: center;
+      
+        padding: 75px 0 45px;
+      }
+      
+      .badge {
+        display: inline-block;
+      
+        padding: 7px 14px;
+      
+        border-radius: 50px;
+      
+        border: 1px solid #312e81;
+      
+        background: rgba(124, 58, 237, 0.08);
+      
+        color: #a78bfa;
+      
+        font-size: 13px;
+      
+        margin-bottom: 22px;
+      }
+      
+      .header h1 {
+        font-size: 48px;
+      
+        letter-spacing: -2px;
+      
+        margin-bottom: 15px;
+      }
+      
+      .header h1 span {
+        background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+      
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      
+      .header p {
+        color: #94a3b8;
+      
+        line-height: 1.7;
+      
+        max-width: 550px;
+      
+        margin: auto;
+      }
+      
+      /* =========================
+                 FORM CARD
+              ========================= */
+      
+      .form-card {
+        background: linear-gradient(145deg, #111827, #0d1324);
+      
+        border: 1px solid #1e293b;
+      
+        border-radius: 22px;
+      
+        padding: 40px;
+      
+        margin-bottom: 80px;
+      
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+      }
+      
+      /* =========================
+                 DJANGO FORM
+              ========================= */
+      
+      form p {
+        margin-bottom: 25px;
+      }
+      
+      label {
+        display: block;
+      
+        color: #e2e8f0;
+      
+        font-size: 14px;
+      
+        font-weight: 600;
+      
+        margin-bottom: 9px;
+      }
+      
+      input,
+      select,
+      textarea {
+        width: 100%;
+      
+        padding: 14px 16px;
+      
+        border-radius: 11px;
+      
+        border: 1px solid #334155;
+      
+        background: #080b16;
+      
+        color: #f8fafc;
+      
+        font-size: 15px;
+      
+        outline: none;
+      
+        transition: all 0.25s ease;
+      }
+      
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #8b5cf6;
+      
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+      }
+      
+      input::placeholder,
+      textarea::placeholder {
+        color: #64748b;
+      }
+      
+      /* Django help text */
+      
+      .helptext {
+        display: block;
+      
+        color: #64748b;
+      
+        font-size: 12px;
+      
+        margin-top: 7px;
+      }
+      
+      /* Django errors */
+      
+      .errorlist {
+        list-style: none;
+      
+        color: #f87171;
+      
+        font-size: 13px;
+      
+        margin-bottom: 8px;
+      }
+      
+      /* =========================
+                 BUTTON
+              ========================= */
+      
+      .button-wrapper {
+        margin-top: 30px;
+      }
+      
+      .save-button {
+        width: 100%;
+      
+        padding: 15px;
+      
+        border: none;
+      
+        border-radius: 11px;
+      
+        background: linear-gradient(90deg, #7c3aed, #2563eb);
+      
+        color: white;
+      
+        font-size: 15px;
+      
+        font-weight: 700;
+      
+        cursor: pointer;
+      
+        transition: all 0.3s ease;
+      
+        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.2);
+      }
+      
+      .save-button:hover {
+        transform: translateY(-2px);
+      
+        box-shadow: 0 15px 35px rgba(124, 58, 237, 0.35);
+      }
+      
+      .save-button:active {
+        transform: translateY(0);
+      }
+      
+      /* =========================
+                 INFO
+              ========================= */
+      
+      .info {
+        display: flex;
+      
+        align-items: center;
+      
+        gap: 12px;
+      
+        margin-top: 25px;
+      
+        padding: 15px;
+      
+        border-radius: 12px;
+      
+        background: rgba(6, 182, 212, 0.05);
+      
+        border: 1px solid rgba(6, 182, 212, 0.15);
+      
+        color: #94a3b8;
+      
+        font-size: 13px;
+      
+        line-height: 1.5;
+      }
+      
+      .info-icon {
+        font-size: 20px;
+      }
+      
+      /* =========================
+                 FOOTER
+              ========================= */
+      
+      footer {
+        border-top: 1px solid #1e293b;
+      
+        text-align: center;
+      
+        padding: 25px;
+      
+        color: #64748b;
+      
+        font-size: 13px;
+      }
+      
+      /* =========================
+                 MOBILE
+              ========================= */
+      
+      @media (max-width: 600px) {
+        .navbar {
+          padding: 0 5%;
+        }
+      
+        .container {
+          width: 90%;
+        }
+      
+        .header {
+          padding: 55px 0 35px;
+        }
+      
+        .header h1 {
+          font-size: 38px;
+        }
+      
+        .form-card {
+          padding: 25px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!--  =========================
+         NAVBAR
+    ==========================  -->
+
+    <nav class="navbar">
+      <div class="logo">
+        PRICE<span>TRACKER</span>
+      </div>
+
+      <a href="/" class="back-link">← Dashboard</a>
+    </nav>
+
+    <!--  =========================
+         MAIN
+    ==========================  -->
+
+    <main class="container">
+      <!-- HEADER -->
+
+      <section class="header">
+        <div class="badge">⚡ Start Tracking</div>
+
+        <h1>Add a <span>Product</span></h1>
+
+        <p>Add a product and let PriceTracker monitor its price for you.</p>
+      </section>
+
+      <!-- FORM -->
+
+      <section class="form-card">
+        <form method="post">
+          {% csrf_token %}
+
+          {{ form.as_p }}
+
+          <div class="button-wrapper">
+            <button type="submit" class="save-button">🚀 Start Tracking</button>
+          </div>
+        </form>
+
+        <div class="info">
+          <span class="info-icon">💡</span>
+
+          <span>Enter the product details and we'll keep track of its price so you can monitor changes over time.</span>
+        </div>
+      </section>
+    </main>
+
+    <!--  =========================
+         FOOTER
+    ==========================  -->
+
+    <footer>Price Tracker · Built with Django & Python</footer>
+  </body>
 </html>

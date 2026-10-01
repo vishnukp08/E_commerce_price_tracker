@@ -1,24 +1,453 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Tracked Products</title>
-</head>
-<body>
-    <h1>Tracked Products</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <a href="/add/">➕ Add Product</a>
+    <title>Price Tracker | Dashboard</title>
 
-    <ul>
-        {% for product in products %}
-            <li>
-                <strong>{{ product.name }}</strong><br>
-                Target Price: {{ product.target_price }}<br>
-                Last Price: {{ product.last_price|default:"Not checked yet" }}
-            </li>
-            <hr>
-        {% empty %}
-            <li>No products added yet.</li>
-        {% endfor %}
-    </ul>
-</body>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #080b16;
+        color: #f8fafc;
+        min-height: 100vh;
+      }
+      
+      /* ---------- NAVBAR ---------- */
+      
+      .navbar {
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 7%;
+        border-bottom: 1px solid #1e293b;
+        background: rgba(8, 11, 22, 0.9);
+      }
+      
+      .logo {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      
+      .logo span {
+        color: #8b5cf6;
+      }
+      
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+      
+      .nav-links a {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+        transition: 0.3s;
+      }
+      
+      .nav-links a:hover {
+        color: #ffffff;
+      }
+      
+      .nav-button {
+        background: #7c3aed;
+        color: white !important;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+      
+      .nav-button:hover {
+        background: #8b5cf6;
+      }
+      
+      /* ---------- MAIN ---------- */
+      
+      .container {
+        width: 86%;
+        max-width: 1200px;
+        margin: auto;
+      }
+      
+      /* ---------- HERO ---------- */
+      
+      .hero {
+        padding: 80px 0 50px;
+        text-align: center;
+      }
+      
+      .badge {
+        display: inline-block;
+        padding: 7px 14px;
+        border: 1px solid #312e81;
+        border-radius: 50px;
+        color: #a78bfa;
+        background: rgba(124, 58, 237, 0.08);
+        font-size: 13px;
+        margin-bottom: 22px;
+      }
+      
+      .hero h1 {
+        font-size: clamp(40px, 6vw, 70px);
+        line-height: 1.05;
+        letter-spacing: -3px;
+        margin-bottom: 20px;
+      }
+      
+      .hero h1 span {
+        background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      
+      .hero p {
+        color: #94a3b8;
+        max-width: 600px;
+        margin: auto;
+        line-height: 1.7;
+        font-size: 16px;
+      }
+      
+      /* ---------- STATS ---------- */
+      
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 60px;
+      }
+      
+      .stat-card {
+        background: #111827;
+        border: 1px solid #1e293b;
+        padding: 25px;
+        border-radius: 18px;
+        transition: 0.3s;
+      }
+      
+      .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: #4c1d95;
+      }
+      
+      .stat-title {
+        color: #94a3b8;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      
+      .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        margin-top: 8px;
+      }
+      
+      /* ---------- SECTION ---------- */
+      
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      
+      .section-header h2 {
+        font-size: 26px;
+      }
+      
+      /* ---------- PRODUCT CARD ---------- */
+      
+      .products {
+        display: grid;
+        gap: 18px;
+        padding-bottom: 80px;
+      }
+      
+      .product-card {
+        position: relative;
+        background: linear-gradient(145deg, #111827, #0d1324);
+        border: 1px solid #1e293b;
+        border-radius: 20px;
+        padding: 28px;
+        transition: all 0.3s ease;
+      }
+      
+      .product-card:hover {
+        transform: translateY(-5px);
+        border-color: #6d28d9;
+        box-shadow: 0 20px 50px rgba(76, 29, 149, 0.18);
+      }
+      
+      .product-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      
+      .product-name {
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      
+      .product-label {
+        color: #64748b;
+        font-size: 13px;
+      }
+      
+      .price-box {
+        text-align: right;
+      }
+      
+      .price-label {
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+      
+      .price {
+        font-size: 27px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+      
+      .target {
+        color: #06b6d4;
+        font-size: 13px;
+        margin-top: 5px;
+      }
+      
+      .divider {
+        height: 1px;
+        background: #1e293b;
+        margin: 22px 0;
+      }
+      
+      .product-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        padding: 7px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+      }
+      
+      .dot {
+        width: 7px;
+        height: 7px;
+        background: #22c55e;
+        border-radius: 50%;
+      }
+      
+      .view-button {
+        color: #a78bfa;
+        text-decoration: none;
+        font-size: 13px;
+      }
+      
+      /* ---------- EMPTY STATE ---------- */
+      
+      .empty {
+        text-align: center;
+        padding: 70px 20px;
+        border: 1px dashed #334155;
+        border-radius: 20px;
+        color: #64748b;
+      }
+      
+      .empty-icon {
+        font-size: 45px;
+        margin-bottom: 15px;
+      }
+      
+      .empty h3 {
+        color: #e2e8f0;
+        margin-bottom: 8px;
+      }
+      
+      /* ---------- FOOTER ---------- */
+      
+      footer {
+        border-top: 1px solid #1e293b;
+        text-align: center;
+        padding: 25px;
+        color: #64748b;
+        font-size: 13px;
+      }
+      
+      /* ---------- MOBILE ---------- */
+      
+      @media (max-width: 700px) {
+        .navbar {
+          padding: 0 5%;
+        }
+      
+        .nav-links a:not(.nav-button) {
+          display: none;
+        }
+      
+        .container {
+          width: 90%;
+        }
+      
+        .hero {
+          padding: 55px 0 40px;
+        }
+      
+        .hero h1 {
+          letter-spacing: -2px;
+        }
+      
+        .stats {
+          grid-template-columns: 1fr;
+        }
+      
+        .product-top {
+          flex-direction: column;
+        }
+      
+        .price-box {
+          text-align: left;
+        }
+      
+        .product-bottom {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVIGATION -->
+
+    <nav class="navbar">
+      <div class="logo">
+        PRICE<span>TRACKER</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="/">Dashboard</a>
+        <a href="/add/" class="nav-button">+ Add Product</a>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="container">
+      <!-- HERO -->
+
+      <section class="hero">
+        <div class="badge">⚡ Smart Price Monitoring</div>
+
+        <h1>
+          Track prices.<br />
+          <span>Buy smarter.</span>
+        </h1>
+
+        <p>Monitor your favorite products, track price changes, and know when the price is right.</p>
+      </section>
+
+      <!-- STATISTICS -->
+
+      <section class="stats">
+        <div class="stat-card">
+          <div class="stat-title">Tracked Products</div>
+
+          <div class="stat-number">{{ products|length }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Price Monitoring</div>
+
+          <div class="stat-number">Active</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Tracker Status</div>
+
+          <div class="stat-number">● Online</div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+
+      <section>
+        <div class="section-header">
+          <h2>Your Products</h2>
+
+          <a href="/add/" class="view-button">+ Track another</a>
+        </div>
+
+        <div class="products">
+          {% for product in products %}
+            <article class="product-card">
+              <div class="product-top">
+                <div>
+                  <div class="product-name">{{ product.name }}</div>
+
+                  <div class="product-label">Product being monitored</div>
+                </div>
+
+                <div class="price-box">
+                  <div class="price-label">CURRENT PRICE</div>
+
+                  <div class="price">₹{{ product.last_price|default:'—' }}</div>
+
+                  <div class="target">Target: ₹{{ product.target_price }}</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="product-bottom">
+                <div class="status">
+                  <span class="dot"></span>
+                  Price tracking active
+                </div>
+
+                <a href="#" class="view-button">View product →</a>
+              </div>
+            </article>
+          {% empty %}
+            <div class="empty">
+              <div class="empty-icon">📦</div>
+
+              <h3>No products tracked yet</h3>
+
+              <p>Add your first product to start monitoring its price.</p>
+
+              <br />
+
+              <a href="/add/" class="nav-button">+ Add your first product</a>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+
+    <footer>Price Tracker · Built with Django & Python</footer>
+  </body>
 </html>
